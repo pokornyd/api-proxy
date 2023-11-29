@@ -19,11 +19,6 @@ const body_parser_1 = __importDefault(require("body-parser"));
 //     });
 //   };
 const onDeliverProxyReq = (proxyReq, req, res) => {
-    // Add authorization header
-    const bearerToken = process.env.BEARER_TOKEN;
-    if (bearerToken) {
-        proxyReq.setHeader("Authorization", `Bearer ${bearerToken}`);
-    }
     // Add body if there is a body in the incoming request
     if (req.body) {
         let bodyData = JSON.stringify(req.body);
@@ -33,6 +28,11 @@ const onDeliverProxyReq = (proxyReq, req, res) => {
     }
 };
 const onManageProxyReq = (proxyReq, req, res) => {
+    // Add authorization header
+    const bearerToken = process.env.BEARER_TOKEN;
+    if (bearerToken) {
+        proxyReq.setHeader("Authorization", `Bearer ${bearerToken}`);
+    }
     if (req.body) {
         let bodyData = JSON.stringify(req.body);
         proxyReq.setHeader("Content-Type", "application/json");
@@ -47,9 +47,9 @@ const deliverProxyOptions = {
     onProxyReq: onDeliverProxyReq,
 };
 const manageProxyOptions = {
-    target: "https://manage.kontent.ai/v2", // Target for /api/manage
+    target: "https://manage.kontent.ai", // Target for /api/manage
     changeOrigin: true,
-    pathRewrite: { "^/api/manage": "" },
+    pathRewrite: { "^/api/manage": "v2" },
     onProxyReq: onManageProxyReq,
 };
 const app = (0, express_1.default)();

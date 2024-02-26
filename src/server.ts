@@ -33,11 +33,11 @@ const onDeliverProxyReq: OnProxyReqCallback = (proxyReq, req, res) => {
 
 const onManageProxyReq: OnProxyReqCallback = (proxyReq, req, res) => {
   // Add authorization header
-  const bearerToken = process.env.BEARER_TOKEN;
+  const bearerToken = req.query["api_key"] ?? process.env.BEARER_TOKEN;
   if (bearerToken) {
     proxyReq.setHeader("Authorization", `Bearer ${bearerToken}`);
   }
-  
+
   if (req.body) {
     let bodyData = JSON.stringify(req.body);
     proxyReq.setHeader("Content-Type", "application/json");
@@ -60,10 +60,26 @@ const manageProxyOptions: Options = {
   onProxyReq: onManageProxyReq,
 };
 
+// const logRequest = (
+//   req: express.Request,
+//   res: express.Response,
+//   next: express.NextFunction
+// ) => {
+//   console.log("Received request:", {
+//     method: req.method,
+//     url: req.url,
+//     body: req.body,
+//     headers: req.headers,
+//   });
+//   next(); // Important to call next() to continue to the next middleware
+// };
+
 const app = express();
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+// app.use('/api/manage', logRequest); // Place this before the proxy middleware
 
 app.use("/api/deliver", createProxyMiddleware(deliverProxyOptions));
 app.use("/api/manage", createProxyMiddleware(manageProxyOptions));
